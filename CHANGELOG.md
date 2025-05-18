@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.3.5] - 2024-07-10
+
+### Fixed
+- Fixed wake-up functionality by using the global volatile mode variable as the source of truth
+- Removed local mode variable in PowerManager to avoid inconsistencies
+- Updated all mode-related functions to use the global mode variable
+
+## [0.3.4] - 2024-07-10
+
+### Fixed
+- Fixed wake-up functionality after sleep mode with improved interrupt handling
+- Added proper interrupt flag clearing to prevent re-triggering
+- Ensured clean interrupt setup and teardown during sleep/wake cycles
+- Disabled pull-ups when exiting sleep mode to restore normal keypad operation
+- Optimized watchdog timer ISR using EMPTY_INTERRUPT macro
+
+## [0.3.3] - 2024-07-10
+
+### Fixed
+- Fixed wake-up functionality after sleep mode
+- Added pull-up resistors to keypad row pins to ensure proper detection of key presses
+- Properly disabled pin change interrupts when exiting sleep mode
+
 ## [0.3.2] - 2024-07-10
 
 ### Fixed

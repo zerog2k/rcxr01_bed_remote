@@ -21,12 +21,19 @@ Keypad customKeypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS)
 // setup pin change interrupt for rows to wake from sleep
 ISR(PCINT0_vect)
 {
+  // Clear the interrupt flag to prevent re-triggering
+  PCIFR = 0;
+  
   if (mode == M_SLEEP)
     mode = M_WAKEUP;
 }
 
 void keypad_enter_sleep()
 {
+  // Disable any existing interrupts first
+  PCICR &= ~_BV(PCIE0);
+  PCMSK0 = 0;
+  
   // set columns as outputs pulled low
   DDRA |= _BV(PA5) | _BV(PA2);
   DDRD |= _BV(PD3) | _BV(PD4);
@@ -35,15 +42,26 @@ void keypad_enter_sleep()
 
   // set rows as pulled up inputs
   DDRA &= ~(_BV(PA1) | _BV(PA3) | _BV(PA4) | _BV(PA6) | _BV(PA7));
+  PORTA |= _BV(PA1) | _BV(PA3) | _BV(PA4) | _BV(PA6) | _BV(PA7); // Enable pull-ups
+  
+  // Clear any pending interrupts
+  PCIFR = 0;
+  
   // set pc int on rows
   PCMSK0 |= _BV(PCINT1) | _BV(PCINT3) | _BV(PCINT4) | _BV(PCINT6) | _BV(PCINT7);
-  PCIFR  |= _BV (PCIF0);
   PCICR |= _BV(PCIE0);
 }
 
 void keypad_exit_sleep()
 {
-  // restore colums to inputs to prevent triggering keypress event after wakeup
+  // Disable pin change interrupts
+  PCICR &= ~_BV(PCIE0);
+  PCMSK0 = 0;
+  
+  // restore columns to inputs to prevent triggering keypress event after wakeup
   DDRA &= ~(_BV(PA5) | _BV(PA2));
-  DDRD &= ~(_BV(PD3) | _BV(PD4));  
+  DDRD &= ~(_BV(PD3) | _BV(PD4));
+  
+  // Ensure pull-ups are disabled
+  //PORTA &= ~(_BV(PA1) | _BV(PA3) | _BV(PA4) | _BV(PA6) | _BV(PA7));
 }

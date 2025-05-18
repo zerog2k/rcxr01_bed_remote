@@ -26,12 +26,10 @@ public:
     bool shouldSleep();
     
     // Getters and setters
-    system_mode_t getMode() { return _mode; }
-    void setMode(system_mode_t mode) { _mode = mode; }
+    system_mode_t getMode();
     bool isOnBattery() { return _onBattery; }
     
 private:
-    system_mode_t _mode;
     uint8_t _usbDetectPin;
     uint32_t _sleepTimer;
     bool _onBattery;

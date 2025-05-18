@@ -5,9 +5,9 @@
 #include "lcd.h"
 
 extern volatile uint32_t seconds;
+extern volatile system_mode_t mode;
 
 PowerManager::PowerManager(uint8_t usbDetectPin, RF24* radio) :
-    _mode(M_ACTIVE),
     _usbDetectPin(usbDetectPin),
     _sleepTimer(0),
     _onBattery(true),
@@ -21,7 +21,7 @@ void PowerManager::begin() {
 }
 
 void PowerManager::enterSleep() {
-    _mode = M_SLEEP;
+    mode = M_SLEEP;
     u8g2.setPowerSave(1);
     _radio->powerDown();
     keypad_enter_sleep();
@@ -32,7 +32,7 @@ void PowerManager::exitSleep() {
     _sleepTimer = seconds;
     u8g2.setPowerSave(0);
     _radio->powerUp();
-    _mode = M_ACTIVE;
+    mode = M_ACTIVE;
 }
 
 void PowerManager::checkPowerState() {
@@ -41,13 +41,13 @@ void PowerManager::checkPowerState() {
     if (!_onBattery) {
         // On USB power, reset sleep timer or wake
         _sleepTimer = seconds;
-        if (_mode == M_SLEEP) {
-            _mode = M_WAKEUP;
+        if (mode == M_SLEEP) {
+            mode = M_WAKEUP;
         }
     }
     
     // Check if it's time to sleep
-    if (_mode == M_ACTIVE && shouldSleep()) {
+    if (mode == M_ACTIVE && shouldSleep()) {
         enterSleep();
     }
 }
@@ -58,4 +58,8 @@ void PowerManager::resetSleepTimer() {
 
 bool PowerManager::shouldSleep() {
     return (seconds - _sleepTimer) > SLEEP_DELAY_TIME;
+}
+
+system_mode_t PowerManager::getMode() {
+    return mode;
 }

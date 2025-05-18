@@ -2,7 +2,7 @@
 #include <avr/interrupt.h>
 
 // Watchdog Interrupt Service. This is executed when watchdog timed out.
-ISR(WDT_vect) { }
+EMPTY_INTERRUPT(WDT_vect);
 
 void enable_prr() 
 { 
