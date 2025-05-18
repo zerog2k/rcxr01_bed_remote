@@ -22,7 +22,7 @@ void PowerManager::begin() {
 
 void PowerManager::enterSleep() {
     _mode = M_SLEEP;
-    u8x8.setPowerSave(1);
+    u8g2.setPowerSave(1);
     _radio->powerDown();
     keypad_enter_sleep();
 }
@@ -30,7 +30,7 @@ void PowerManager::enterSleep() {
 void PowerManager::exitSleep() {
     keypad_exit_sleep();
     _sleepTimer = seconds;
-    u8x8.setPowerSave(0);
+    u8g2.setPowerSave(0);
     _radio->powerUp();
     _mode = M_ACTIVE;
 }

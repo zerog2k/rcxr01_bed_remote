@@ -1,4 +1,5 @@
 // cloning bed remote for RCXR-01
+// Updated to use U8G2 library instead of U8X8
 
 #include <Arduino.h>
 #include "BedRemote.h"

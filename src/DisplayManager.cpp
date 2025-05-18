@@ -9,64 +9,112 @@ DisplayManager::DisplayManager() :
 }
 
 void DisplayManager::begin() {
-    u8x8.begin();
-    u8x8_c = u8x8.getU8x8(); // low-level c access for custom lcd funcs
-    lcd_clear_all_symbols();
-    u8x8.setPowerSave(0);
-    u8x8.setFont(u8x8_font_victoriamedium8_r);
+    lcd_init();
+    // Use a smaller font that fits better on a 96x32 display
+    u8g2.setFont(u8g2_font_profont10_tf);
 }
 
 void DisplayManager::updateDisplay() {
-    u8x8.clearDisplay();
+    u8g2.clearBuffer();
     updateBatteryDisplay(readVcc());
-    u8x8.setCursor(0, 0);
     
     switch (_displayMode) {
         case D_NORMAL: {
-            u8x8.drawString(0, 0, "normal mode:");
-            u8x8.drawString(0, 1, "remote");
-            u8x8.drawString(0, 2, "control addr");
+            u8g2.setCursor(0, 8); // Adjusted Y positions for smaller display
+            u8g2.print("normal mode:");
+            u8g2.setCursor(0, 16);
+            u8g2.print("remote");
+            u8g2.setCursor(0, 24);
+            u8g2.print("control addr");
             break;
         }
         case D_MAIN_MENU: {
-            u8x8.drawString(0, 0, "Main Menu:");
-            u8x8.setInverseFont((_menuSelection == SELECT_LEARN) ? 1 : 0);
-            u8x8.drawString(0, 1, "Learn Remote");
-            u8x8.setInverseFont((_menuSelection == SELECT_TEACH) ? 1 : 0);
-            u8x8.drawString(0, 2, "Teach Base");
-            u8x8.setInverseFont((_menuSelection == SELECT_BACK) ? 1 : 0);
-            u8x8.drawString(0, 3, "Back");
-            u8x8.setInverseFont(0);
+            u8g2.setCursor(0, 8);
+            u8g2.print("Main Menu:");
+            
+            // Draw menu items with proper highlighting
+            if (_menuSelection == SELECT_LEARN) {
+                // Draw highlighted background for Learn Remote
+                u8g2.setDrawColor(1); // Set to draw in white
+                u8g2.drawBox(0, 9, 96, 8);
+                u8g2.setDrawColor(0); // Set to draw in black (for text on white background)
+                u8g2.setCursor(0, 16);
+                u8g2.print("Learn Remote");
+                u8g2.setDrawColor(1); // Reset to normal
+            } else {
+                u8g2.setDrawColor(1); // Normal drawing mode
+                u8g2.setCursor(0, 16);
+                u8g2.print("Learn Remote");
+            }
+            
+            if (_menuSelection == SELECT_TEACH) {
+                // Draw highlighted background for Teach Base
+                u8g2.setDrawColor(1); // Set to draw in white
+                u8g2.drawBox(0, 17, 96, 8);
+                u8g2.setDrawColor(0); // Set to draw in black (for text on white background)
+                u8g2.setCursor(0, 24);
+                u8g2.print("Teach Base");
+                u8g2.setDrawColor(1); // Reset to normal
+            } else {
+                u8g2.setDrawColor(1); // Normal drawing mode
+                u8g2.setCursor(0, 24);
+                u8g2.print("Teach Base");
+            }
+            
+            if (_menuSelection == SELECT_BACK) {
+                // Draw highlighted background for Back
+                u8g2.setDrawColor(1); // Set to draw in white
+                u8g2.drawBox(0, 25, 96, 8);
+                u8g2.setDrawColor(0); // Set to draw in black (for text on white background)
+                u8g2.setCursor(0, 32);
+                u8g2.print("Back");
+                u8g2.setDrawColor(1); // Reset to normal
+            } else {
+                u8g2.setDrawColor(1); // Normal drawing mode
+                u8g2.setCursor(0, 32);
+                u8g2.print("Back");
+            }
             break;
         }
         case D_LEARN_START: {
-            u8x8.drawString(0, 0, "Learn Mode:");
-            u8x8.drawString(0, 1, "Now press");
-            u8x8.drawString(0, 2, "sync on");
-            u8x8.drawString(0, 3, "remote");
+            u8g2.setCursor(0, 8);
+            u8g2.print("Learn Mode:");
+            u8g2.setCursor(0, 16);
+            u8g2.print("Now press");
+            u8g2.setCursor(0, 24);
+            u8g2.print("sync on remote");
             break;
         }
         case D_LEARN_COMPLETE: {
-            u8x8.drawString(0, 0, "Learn Mode:");
-            u8x8.drawString(0, 2, "Completed!");
+            u8g2.setCursor(0, 8);
+            u8g2.print("Learn Mode:");
+            u8g2.setCursor(0, 24);
+            u8g2.print("Completed!");
             break;
         }
         case D_TEACH_START: {
-            u8x8.drawString(0, 0, "Teach Base:");
-            u8x8.drawString(0, 1, "Start sync");
-            u8x8.drawString(0, 2, "on base then");
-            u8x8.drawString(0, 3, "press enter");
+            u8g2.setCursor(0, 8);
+            u8g2.print("Teach Base:");
+            u8g2.setCursor(0, 16);
+            u8g2.print("Start sync on");
+            u8g2.setCursor(0, 24);
+            u8g2.print("base then");
+            u8g2.setCursor(0, 32);
+            u8g2.print("press enter");
             break;
         }
         case D_TEACH_COMPLETE: {
-            u8x8.drawString(0, 0, "Teach Base:");
-            u8x8.drawString(0, 2, "Completed!");
+            u8g2.setCursor(0, 8);
+            u8g2.print("Teach Base:");
+            u8g2.setCursor(0, 24);
+            u8g2.print("Completed!");
             break;
         }
         default:
             break;
     }
     
+    u8g2.sendBuffer(); // Send the buffer to the display
     _updateDisplay = false;
 }
 
@@ -133,6 +181,9 @@ void DisplayManager::selectMenuItem() {
             case SELECT_BACK:
                 setDisplayMode(D_NORMAL);
                 break;
+            case SELECT_NONE:
+                // Do nothing
+                break;
         }
     }
 }
@@ -155,7 +206,9 @@ void DisplayManager::showAddress(uint8_t* address) {
         address[2],
         address[3],
         address[4]);
-    u8x8.drawString(0, 3, addr);
+    u8g2.setCursor(0, 32);
+    u8g2.print(addr);
+    u8g2.sendBuffer(); // Update the display
 }
 
 void DisplayManager::showChannel(uint8_t channel) {

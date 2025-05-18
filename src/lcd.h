@@ -4,14 +4,14 @@
 /// LCD stuff for RCXR-01
 #include <SPI.h>
 #include <Wire.h>
-#include <U8x8lib.h>
+#include <U8g2lib.h>
 
 #define CS 13 //PD5
 #define RST 14 //PD6
 #define RS 3 //PB3
 
-extern U8X8_ST7565_RCXR01_4W_HW_SPI u8x8;
-extern u8x8_t * u8x8_c; // low-level c access
+// Define the U8G2 display object
+extern U8G2_ST7565_RCXR01_F_4W_HW_SPI u8g2;
 
 // custom lcd symbols on RCXR-01
 // custom symbols on page 8
@@ -76,6 +76,7 @@ extern const uint8_t signal_map[MAX_SIGNAL];
 #define SYM_YES     0x5e
 
 // function prototypes
+void lcd_init();
 void lcd_set_bat(uint8_t level);
 void lcd_set_bat_shell(uint8_t state);
 void lcd_set_sig(uint8_t level);

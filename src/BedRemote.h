@@ -44,7 +44,7 @@ private:
     const uint8_t RF_CE = 0;    // PB0
     const uint8_t RF_CSN = 17;  // PC1
     const uint8_t USB_DETECT_PIN = 2; // PB2
-    const char* VERSION = "v0.2";
+    const char* VERSION = "v0.3.2";
 };
 
 #endif // BED_REMOTE_H

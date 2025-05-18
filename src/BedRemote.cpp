@@ -27,8 +27,12 @@ void BedRemote::begin() {
     
     // Initialize display
     _displayManager.begin();
-    u8x8.drawString(0, 0, "bed remote");
-    u8x8.drawString(0, 1, VERSION);
+    u8g2.clearBuffer();
+    u8g2.setCursor(0, 8);
+    u8g2.print("bed remote");
+    u8g2.setCursor(0, 16);
+    u8g2.print(VERSION);
+    u8g2.sendBuffer();
     
     // Initialize radio
     _radioManager.begin();
